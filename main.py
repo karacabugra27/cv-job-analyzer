@@ -194,4 +194,10 @@ result = crew.kickoff(
     }
 )
 
+cv_output = cv_task.output.raw
+job_output = job_task.output.raw
+match_output = match_task.output.raw
+cover_letter = cover_letter_task.output.raw
+interview_output = interview_task.output.raw
+
 print(result)
