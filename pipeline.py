@@ -4,7 +4,7 @@ from rag.bm25_retriever import create_bm25
 from rag.hybrid_retriever import hybrid_search
 from rag.reranker import rerank
 from rag.citation_enforcer import format_chunks_with_ids, build_cited_prompt
-from main import crew, match_task, cover_letter_task, interview_task
+from langchain_pipeline.graph import graph
 
 
 def run_pipeline(cv_pdf_path, job_text, query="Genel Analiz"):
@@ -20,12 +20,23 @@ def run_pipeline(cv_pdf_path, job_text, query="Genel Analiz"):
     ranked = rerank(query, results)
     # 5. Citation prompt oluştur
     formatted = format_chunks_with_ids(ranked)
-    prompt = build_cited_prompt(query, formatted)
-    # 6. Crew'u çalıştır
-    result = crew.kickoff(inputs={"cv_text": prompt, "job_text": job_text})
+    cv_prompt = build_cited_prompt(query, formatted)
+    # 6. LangGraph çalıştır
+    initial_state = {
+        "cv_text": cv_prompt,
+        "job_text": job_text,
+        "cv_analysis": {},
+        "job_analysis": {},
+        "match_analysis": {},
+        "cover_letter": "",
+        "interview_questions": {},
+        "gelisim": "",
+    }
+    final_state = graph.invoke(initial_state)
     # 7. Sonucu döndür
     return {
-        "match": match_task.output.raw,
-        "cover_letter": cover_letter_task.output.raw,
-        "interview": interview_task.output.raw,
+        "match": final_state["match_analysis"],
+        "cover_letter": final_state["cover_letter"],
+        "interview": final_state["interview_questions"],
+        "gelisim": final_state["gelisim"],
     }
