@@ -7,6 +7,4 @@ class GraphState(TypedDict):
     cv_analysis: dict
     job_analysis: dict
     match_analysis: dict
-    cover_letter: str
-    interview_questions: dict
-    gelisim: str
+    gelisim_onerileri: str

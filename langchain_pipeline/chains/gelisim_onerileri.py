@@ -6,11 +6,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 _ROLE = """Sen bir Senior Career Development Coach'sun.
-Yazılım kariyerinde 10+ yıllık deneyimle, uyum puanı düşük çıkan adaylara
-nasıl pratik bir gelişim planı kurabileceklerini gösteriyorsun. Genel klişeler
-yerine, eksik becerilere göre öğrenmesi ve kendini geliştirmesi için fikir ve çözümler öneriyorsun."""
+Yazılım kariyerinde 10+ yıllık deneyimle, adaylara hedefledikleri pozisyon için
+pratik gelişim planları kuruyorsun. Genel klişeler yerine, adayın güçlü ve
+eksik yönlerine göre somut öğrenme/uygulama önerileri veriyorsun."""
 
-_TASK = """Adayın iş ilanına uyum puanı 70'in altında. Eksiklikleri kapatması için
+_TASK = """Aday bu iş ilanına başvurmayı düşünüyor. Uyum puanı ne olursa olsun,
+mevcut profili daha da güçlendirmesi ve pozisyona daha hazır gelmesi için
 3-6 aylık somut bir gelişim planı çıkar.
 
 CV Analizi (JSON):
@@ -23,8 +24,8 @@ Uyum Analizi (JSON):
 {match_analysis}
 
 Plan şunları içersin:
-- Öncelik sırasına göre 3-5 eksik beceri
-- Her beceri için: neden önemli, nasıl öğrenilir (kaynak/kurs/proje fikri), tahmini süre
+- Öncelik sırasına göre 3-5 odaklanılacak alan (eksik beceriler + güçlendirilmesi gereken yönler)
+- Her alan için: neden önemli, nasıl öğrenilir (kaynak/kurs/proje fikri), tahmini süre
 - Adayın mevcut güçlü yönleriyle nasıl köprü kurabileceği
 - 30/60/90 gün için kısa eylem maddeleri
 

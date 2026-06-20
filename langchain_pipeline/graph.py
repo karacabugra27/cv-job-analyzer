@@ -5,10 +5,7 @@ from langchain_pipeline.nodes import (
     cv_analiz_node,
     job_analiz_node,
     match_analiz_node,
-    cover_letter_node,
-    interview_node,
     gelisim_node,
-    should_write_cover_letter,
 )
 
 
@@ -18,25 +15,12 @@ def build_graph():
     workflow.add_node("cv_analiz", cv_analiz_node)
     workflow.add_node("job_analiz", job_analiz_node)
     workflow.add_node("match_analiz", match_analiz_node)
-    workflow.add_node("cover_letter", cover_letter_node)
-    workflow.add_node("interview", interview_node)
     workflow.add_node("gelisim", gelisim_node)
 
     workflow.set_entry_point("cv_analiz")
     workflow.add_edge("cv_analiz", "job_analiz")
     workflow.add_edge("job_analiz", "match_analiz")
-
-    workflow.add_conditional_edges(
-        "match_analiz",
-        should_write_cover_letter,
-        {
-            "cover_letter": "cover_letter",
-            "gelisim": "gelisim",
-        },
-    )
-
-    workflow.add_edge("cover_letter", "interview")
-    workflow.add_edge("interview", END)
+    workflow.add_edge("match_analiz", "gelisim")
     workflow.add_edge("gelisim", END)
 
     return workflow.compile()

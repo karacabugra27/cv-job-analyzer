@@ -2,6 +2,11 @@ import os
 import hashlib
 from dotenv import load_dotenv
 
+from monitoring.setup import setup_langsmith
+
+load_dotenv()
+setup_langsmith()
+
 from rag.document_loader import read_pdf, chunking
 from rag.vector_store import get_or_create_index, upsert_chunks
 from rag.bm25_retriever import create_bm25
@@ -9,8 +14,6 @@ from rag.hybrid_retriever import hybrid_search
 from rag.reranker import rerank
 from rag.citation_enforcer import format_chunks_with_ids, build_cited_prompt
 from langchain_pipeline.graph import graph
-
-load_dotenv()
 
 INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "cv-job-analyzer")
 
@@ -44,15 +47,11 @@ def run_pipeline(cv_pdf_path, job_text, query="Genel Analiz"):
         "cv_analysis": {},
         "job_analysis": {},
         "match_analysis": {},
-        "cover_letter": "",
-        "interview_questions": {},
-        "gelisim": "",
+        "gelisim_onerileri": "",
     }
     final_state = graph.invoke(initial_state)
     # 8. Sonucu döndür
     return {
         "match": final_state["match_analysis"],
-        "cover_letter": final_state["cover_letter"],
-        "interview": final_state["interview_questions"],
-        "gelisim": final_state["gelisim"],
+        "gelisim_onerileri": final_state["gelisim_onerileri"],
     }

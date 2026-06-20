@@ -4,8 +4,6 @@ from langchain_pipeline.state import GraphState
 from langchain_pipeline.chains.cv_analyst import cv_chain
 from langchain_pipeline.chains.job_analyst import job_chain
 from langchain_pipeline.chains.match_analyst import match_chain
-from langchain_pipeline.chains.cover_letter_writer import cover_letter_chain
-from langchain_pipeline.chains.interview_coach import interview_chain
 from langchain_pipeline.chains.gelisim_onerileri import gelisim_chain
 
 
@@ -29,28 +27,6 @@ def match_analiz_node(state: GraphState) -> GraphState:
     return state
 
 
-def cover_letter_node(state: GraphState) -> GraphState:
-    state["cover_letter"] = cover_letter_chain.invoke(
-        {
-            "cv_analysis": json.dumps(state["cv_analysis"], ensure_ascii=False),
-            "job_analysis": json.dumps(state["job_analysis"], ensure_ascii=False),
-            "match_analysis": json.dumps(state["match_analysis"], ensure_ascii=False),
-        }
-    )
-    return state
-
-
-def interview_node(state: GraphState) -> GraphState:
-    state["interview_questions"] = interview_chain.invoke(
-        {
-            "cv_analysis": json.dumps(state["cv_analysis"], ensure_ascii=False),
-            "job_analysis": json.dumps(state["job_analysis"], ensure_ascii=False),
-            "match_analysis": json.dumps(state["match_analysis"], ensure_ascii=False),
-        }
-    )
-    return state
-
-
 def gelisim_node(state: GraphState) -> GraphState:
     state["gelisim_onerileri"] = gelisim_chain.invoke(
         {
@@ -60,8 +36,3 @@ def gelisim_node(state: GraphState) -> GraphState:
         }
     )
     return state
-
-
-def should_write_cover_letter(state: GraphState) -> str:
-    uyum = state.get("match_analysis", {}).get("uyum_puani", 0)
-    return "cover_letter" if uyum >= 70 else "gelisim"
