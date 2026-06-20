@@ -16,7 +16,6 @@ from backend.models import (
     AnalysisResponse,
     HistoryItem,
     HistoryList,
-    MatchAnalysis,
 )
 
 app = FastAPI(title="Liyakat AI API", version="0.1.0")

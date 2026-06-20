@@ -2,7 +2,12 @@ import json
 import os
 from pathlib import Path
 
-HISTORY_FILE = Path(__file__).parent.parent / "analysis_history.json"
+HISTORY_FILE = Path(
+    os.getenv(
+        "HISTORY_FILE",
+        str(Path(__file__).parent.parent / "analysis_history.json"),
+    )
+)
 
 
 def _load_all() -> list[dict]:
@@ -13,6 +18,7 @@ def _load_all() -> list[dict]:
 
 
 def _write_all(records: list[dict]) -> None:
+    HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(records, f, ensure_ascii=False, indent=2)
 

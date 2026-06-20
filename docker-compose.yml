@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: cv-job-backend
+    env_file: .env
+    environment:
+      HISTORY_FILE: /app/data/analysis_history.json
+    volumes:
+      - ./data:/app/data
+      - hf_cache:/app/.cache/huggingface
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cv-job-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+volumes:
+  hf_cache:

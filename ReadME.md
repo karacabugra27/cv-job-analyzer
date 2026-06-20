@@ -1,15 +1,15 @@
-# CV-İş Eşleştirme, Cover-Letter ve Analizi
+# CV-İş Eşleştirme ve Gelişim Analizi
 
 ## Amaç
-Kişinin özgeçmişinin başvuracağı işe olan uyumu hesaplanır. Bu uyum analizine göre motivasyon mektubu (cover letter) oluşturulur. İş ilanına göre de teknik ve davranışsal mülakat soruları, bu sorulara göre de stratejik cevaplar üretilir.
+Kişinin özgeçmişinin başvuracağı işe olan uyumu hesaplanır. Bu analiz üzerinden eşleşen/eksik beceriler çıkarılır ve adayın profilini iş ilanına yaklaştıracak somut gelişim önerileri üretilir.
 
 ## Teknolojiler
 - Python 3.11
-- LangChain + LangGraph (conditional branching)
+- LangChain + LangGraph
 - Pinecone (vector DB, serverless)
 - BM25 + Cross-Encoder reranking (hybrid retrieval)
 - LangSmith (tracing & monitoring)
-- Streamlit (geçici UI — Görev 5'te React'e geçilecek)
+- FastAPI backend + React (Vite + TS + Tailwind v4 + shadcn/ui) frontend
 
 ## Kurulum
 
@@ -32,7 +32,11 @@ LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
 
 Çalıştır:
 ```bash
-streamlit run app.py
+# Backend
+uvicorn backend.main:app --reload
+
+# Frontend (ayrı terminal)
+cd frontend && npm install && npm run dev
 ```
 
 ## LangSmith Dashboard
@@ -42,7 +46,7 @@ Her analiz çalıştığında tüm LLM çağrıları, prompt'lar, token sayılar
 1. https://smith.langchain.com adresine git
 2. `cv-job-analyzer` projesini aç
 3. **Traces** sekmesinde her bir pipeline run'ını görebilirsin:
-   - Her node'un (CV analizi, iş analizi, uyum, cover letter, mülakat) süresi
+   - Her node'un (CV analizi, iş analizi, uyum, gelişim önerileri) süresi
    - Token kullanımı ve maliyet
    - Tam prompt ve LLM cevabı
    - Hata varsa stack trace
