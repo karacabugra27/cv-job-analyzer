@@ -5,10 +5,7 @@ services:
       dockerfile: backend/Dockerfile
     container_name: cv-job-backend
     env_file: .env
-    environment:
-      HISTORY_FILE: /app/data/analysis_history.json
     volumes:
-      - ./data:/app/data
       - hf_cache:/app/.cache/huggingface
     ports:
       - "8000:8000"

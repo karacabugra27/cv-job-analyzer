@@ -2,23 +2,30 @@ import os
 import sys
 import tempfile
 import uuid
-from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from redis.asyncio import Redis
+from sqlalchemy import delete, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from pipeline import run_pipeline
-from backend import storage
-from backend.models import (
-    AnalysisResponse,
-    HistoryItem,
-    HistoryList,
+from backend.auth import CurrentUser, get_current_user
+from backend.cache import (
+    analysis_cache_key,
+    get_cached_analysis,
+    set_cached_analysis,
 )
+from backend.db import get_session
+from backend.models import AnalysisResponse, HistoryItem, HistoryList
+from backend.models_db import Analysis
+from backend.rate_limit import enforce_rate_limit
+from backend.redis_client import get_redis
 
-app = FastAPI(title="Liyakat API", version="0.1.0")
+app = FastAPI(title="Liyakat API", version="0.3.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,9 +40,24 @@ app.add_middleware(
 )
 
 
+def _to_response(row: Analysis) -> AnalysisResponse:
+    return AnalysisResponse(
+        id=str(row.id),
+        baslik=row.baslik,
+        tarih=row.tarih.isoformat(),
+        match=row.match,
+        gelisim_onerileri=row.gelisim_onerileri,
+    )
+
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/api/me")
+def me(user: CurrentUser = Depends(get_current_user)):
+    return {"id": str(user.id), "email": user.email}
 
 
 @app.post("/api/analyze", response_model=AnalysisResponse)
@@ -43,57 +65,86 @@ async def analyze(
     cv_file: UploadFile = File(...),
     job_text: str = Form(...),
     baslik: str = Form(...),
+    user: CurrentUser = Depends(enforce_rate_limit),
+    session: AsyncSession = Depends(get_session),
+    redis: Redis = Depends(get_redis),
 ):
     if cv_file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Sadece PDF dosyası kabul edilir.")
 
     contents = await cv_file.read()
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-        tmp.write(contents)
-        tmp_path = tmp.name
+    cache_key = analysis_cache_key(contents, job_text)
 
-    try:
-        result = run_pipeline(tmp_path, job_text)
-    finally:
-        os.unlink(tmp_path)
+    cached = await get_cached_analysis(redis, cache_key)
+    if cached is not None:
+        result = cached
+    else:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(contents)
+            tmp_path = tmp.name
+        try:
+            result = run_pipeline(tmp_path, job_text)
+        finally:
+            os.unlink(tmp_path)
+        await set_cached_analysis(redis, cache_key, result)
 
-    record = {
-        "id": str(uuid.uuid4()),
-        "baslik": baslik,
-        "tarih": datetime.now().isoformat(),
-        "match": result["match"],
-        "gelisim_onerileri": result["gelisim_onerileri"],
-    }
-    storage.save_record(record)
-    return AnalysisResponse(**record)
+    row = Analysis(
+        id=uuid.uuid4(),
+        user_id=user.id,
+        baslik=baslik,
+        match=result["match"],
+        gelisim_onerileri=result["gelisim_onerileri"],
+    )
+    session.add(row)
+    await session.commit()
+    await session.refresh(row)
+    return _to_response(row)
 
 
 @app.get("/api/history", response_model=HistoryList)
-def get_history():
-    records = storage.list_records()
+async def get_history(
+    user: CurrentUser = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(Analysis)
+        .where(Analysis.user_id == user.id)
+        .order_by(Analysis.tarih.desc())
+    )
+    rows = result.scalars().all()
     items = [
         HistoryItem(
-            id=r["id"],
-            baslik=r["baslik"],
-            tarih=r["tarih"],
-            uyum_puani=r.get("match", {}).get("uyum_puani"),
+            id=str(r.id),
+            baslik=r.baslik,
+            tarih=r.tarih.isoformat(),
+            uyum_puani=r.match.get("uyum_puani") if isinstance(r.match, dict) else None,
         )
-        for r in records
+        for r in rows
     ]
     return HistoryList(items=items)
 
 
 @app.get("/api/history/{record_id}", response_model=AnalysisResponse)
-def get_history_detail(record_id: str):
-    record = storage.get_record(record_id)
-    if not record:
+async def get_history_detail(
+    record_id: uuid.UUID,
+    user: CurrentUser = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    row = await session.get(Analysis, record_id)
+    if row is None or row.user_id != user.id:
         raise HTTPException(status_code=404, detail="Kayıt bulunamadı.")
-    return AnalysisResponse(**record)
+    return _to_response(row)
 
 
 @app.delete("/api/history/{record_id}")
-def delete_history(record_id: str):
-    deleted = storage.delete_record(record_id)
-    if not deleted:
+async def delete_history(
+    record_id: uuid.UUID,
+    user: CurrentUser = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    row = await session.get(Analysis, record_id)
+    if row is None or row.user_id != user.id:
         raise HTTPException(status_code=404, detail="Kayıt bulunamadı.")
-    return {"deleted": record_id}
+    await session.execute(delete(Analysis).where(Analysis.id == record_id))
+    await session.commit()
+    return {"deleted": str(record_id)}

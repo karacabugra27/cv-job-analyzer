@@ -7,6 +7,9 @@ import { Footer } from "@/components/layout/Footer"
 import { HomePage } from "@/pages/HomePage"
 import { HistoryPage } from "@/pages/HistoryPage"
 import { HistoryDetailPage } from "@/pages/HistoryDetailPage"
+import { LoginPage } from "@/pages/LoginPage"
+import { ProtectedRoute } from "@/components/ProtectedRoute"
+import { AuthProvider } from "@/lib/auth"
 import { useThemeStore, applyThemeClass } from "@/store/theme"
 
 const queryClient = new QueryClient({
@@ -28,22 +31,42 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <div className="flex min-h-screen flex-col bg-background">
-          <Header />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/history" element={<HistoryPage />} />
-              <Route path="/history/:id" element={<HistoryDetailPage />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-        <Toaster
-          position="top-right"
-          richColors
-          theme={theme}
-        />
+        <AuthProvider>
+          <div className="flex min-h-screen flex-col bg-background">
+            <Header />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <HomePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/history"
+                  element={
+                    <ProtectedRoute>
+                      <HistoryPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/history/:id"
+                  element={
+                    <ProtectedRoute>
+                      <HistoryDetailPage />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+          <Toaster position="top-right" richColors theme={theme} />
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   )
