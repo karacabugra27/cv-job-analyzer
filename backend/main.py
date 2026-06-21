@@ -18,7 +18,7 @@ from backend.models import (
     HistoryList,
 )
 
-app = FastAPI(title="Liyakat AI API", version="0.1.0")
+app = FastAPI(title="Liyakat API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
