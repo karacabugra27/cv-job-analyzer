@@ -24,8 +24,19 @@ async def enforce_rate_limit(
     user: CurrentUser = Depends(get_current_user),
     redis: Redis = Depends(get_redis),
 ) -> CurrentUser:
-    minute_key = f"rl:min:{user.id}"
     day_key = f"rl:day:{user.id}"
+    minute_key = f"rl:min:{user.id}"
+
+    day_current_raw = await redis.get(day_key)
+    day_current = int(day_current_raw) if day_current_raw is not None else 0
+    if day_current >= DAILY_LIMIT:
+        ttl = await redis.ttl(day_key)
+        ttl = max(ttl, 1)
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Günlük {DAILY_LIMIT} analiz hakkın doldu. {_fmt_remaining(ttl)} sonra tekrar dene.",
+            headers={"Retry-After": str(ttl)},
+        )
 
     minute_count = await redis.incr(minute_key)
     if minute_count == 1:

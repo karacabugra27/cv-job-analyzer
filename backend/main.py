@@ -4,6 +4,7 @@ import tempfile
 import uuid
 from pathlib import Path
 
+import httpx
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from redis.asyncio import Redis
@@ -58,6 +59,39 @@ def health():
 @app.get("/api/me")
 def me(user: CurrentUser = Depends(get_current_user)):
     return {"id": str(user.id), "email": user.email}
+
+
+@app.delete("/api/me")
+async def delete_me(
+    user: CurrentUser = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    await session.execute(delete(Analysis).where(Analysis.user_id == user.id))
+    await session.commit()
+
+    service_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
+    if not service_key or not supabase_url:
+        raise HTTPException(
+            status_code=500,
+            detail="Sunucu yapılandırması eksik (SUPABASE_SERVICE_ROLE_KEY).",
+        )
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        res = await client.delete(
+            f"{supabase_url}/auth/v1/admin/users/{user.id}",
+            headers={
+                "apikey": service_key,
+                "Authorization": f"Bearer {service_key}",
+            },
+        )
+        if res.status_code not in (200, 204):
+            raise HTTPException(
+                status_code=502,
+                detail=f"Supabase hesabı silinemedi: {res.text}",
+            )
+
+    return {"deleted": str(user.id)}
 
 
 @app.post("/api/analyze", response_model=AnalysisResponse)

@@ -25,10 +25,13 @@ python-multipart==0.0.30
 sqlalchemy[asyncio]==2.0.36
 asyncpg==0.30.0
 alembic==1.14.0
-pyjwt==2.10.1
+pyjwt[crypto]==2.10.1
 
 # Cache & Rate limit
 redis==5.2.1
+
+# HTTP client (Supabase admin API)
+httpx==0.28.1
 
 # Utils
 python-dotenv==1.2.2

@@ -8,6 +8,7 @@ import { HomePage } from "@/pages/HomePage"
 import { HistoryPage } from "@/pages/HistoryPage"
 import { HistoryDetailPage } from "@/pages/HistoryDetailPage"
 import { LoginPage } from "@/pages/LoginPage"
+import { ProfilePage } from "@/pages/ProfilePage"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import { AuthProvider } from "@/lib/auth"
 import { useThemeStore, applyThemeClass } from "@/store/theme"
@@ -58,6 +59,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <HistoryDetailPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
                     </ProtectedRoute>
                   }
                 />

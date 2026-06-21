@@ -1,4 +1,9 @@
+import { useAuth } from "@/lib/auth"
+
 export function Footer() {
+  const { session } = useAuth()
+  if (!session) return null
+
   return (
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-6xl flex-col items-start gap-2 px-6 py-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">

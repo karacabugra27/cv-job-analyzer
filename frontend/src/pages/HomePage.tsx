@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { ArrowRight, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -9,7 +9,7 @@ import { JobTextarea } from "@/components/home/JobTextarea"
 import { InfoCard } from "@/components/home/InfoCard"
 import { HowItWorks } from "@/components/home/HowItWorks"
 import { ResultView } from "@/components/result/ResultView"
-import { ResultSkeleton } from "@/components/result/ResultSkeleton"
+import { AnalysisProgress } from "@/components/result/AnalysisProgress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { analyze } from "@/lib/api"
@@ -20,6 +20,13 @@ export function HomePage() {
   const [jobText, setJobText] = useState("")
   const [baslik, setBaslik] = useState("")
   const [result, setResult] = useState<AnalysisResponse | null>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (result && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+  }, [result])
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -49,7 +56,7 @@ export function HomePage() {
           <CVDropzone file={cvFile} onChange={setCvFile} />
           <JobTextarea value={jobText} onChange={setJobText} />
           <Input
-            placeholder="Analiz başlığı (örn: Backend Developer — Acme)"
+            placeholder="Analiz başlığı"
             value={baslik}
             onChange={(e) => setBaslik(e.target.value)}
           />
@@ -80,26 +87,17 @@ export function HomePage() {
               <HowItWorks />
             </>
           )}
-          {mutation.isPending && (
-            <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-              <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin text-primary" />
-              Bu işlem 30-60 saniye sürebilir. Lütfen bekleyin.
-            </div>
-          )}
+          {mutation.isPending && <AnalysisProgress />}
         </div>
       </div>
 
       {/* Sonuç */}
-      {(mutation.isPending || result) && (
-        <div className="mt-12">
+      {result && (
+        <div ref={resultRef} className="mt-12 scroll-mt-24">
           <h2 className="mb-6 text-2xl font-semibold tracking-tight">
             Analiz sonucu
           </h2>
-          {mutation.isPending ? (
-            <ResultSkeleton />
-          ) : result ? (
-            <ResultView result={result} />
-          ) : null}
+          <ResultView result={result} />
         </div>
       )}
     </div>

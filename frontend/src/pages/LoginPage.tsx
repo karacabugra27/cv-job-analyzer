@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { GoogleIcon } from "@/components/icons/GoogleIcon"
+import { Logo } from "@/components/layout/Logo"
 import {
   Card,
   CardContent,
@@ -60,7 +62,10 @@ export function LoginPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center px-6 py-12">
+    <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-12">
+      <div className="mb-8">
+        <Logo />
+      </div>
       <Card className="w-full">
         <CardHeader>
           <CardTitle>{mode === "login" ? "Giriş yap" : "Hesap oluştur"}</CardTitle>
@@ -104,9 +109,10 @@ export function LoginPage() {
           <Button
             type="button"
             variant="outline"
-            className="w-full"
+            className="w-full gap-2"
             onClick={handleGoogle}
           >
+            <GoogleIcon className="h-4 w-4" />
             Google ile devam et
           </Button>
 
