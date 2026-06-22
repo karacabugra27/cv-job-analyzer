@@ -10,6 +10,7 @@ import { HistoryDetailPage } from "@/pages/HistoryDetailPage"
 import { LoginPage } from "@/pages/LoginPage"
 import { ProfilePage } from "@/pages/ProfilePage"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
+import { ScrollToTop } from "@/components/ScrollToTop"
 import { AuthProvider } from "@/lib/auth"
 import { useThemeStore, applyThemeClass } from "@/store/theme"
 
@@ -33,6 +34,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <div className="flex min-h-screen flex-col bg-background">
             <Header />
             <main className="flex-1">

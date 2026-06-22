@@ -14,7 +14,7 @@ const steps = [
   {
     n: "03",
     title: "Analizinizi alın",
-    desc: "Skor, güçlü yönler, eksikler ve plan saniyeler içinde.",
+    desc: "Skor, güçlü yönler, eksikler ve CV önerileri 30 saniye içinde hazır.",
   },
 ]
 

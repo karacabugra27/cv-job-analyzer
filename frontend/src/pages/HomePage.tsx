@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react"
-import { useMutation } from "@tanstack/react-query"
+import { useState } from "react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "react-router-dom"
 import { ArrowRight, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -8,25 +9,17 @@ import { CVDropzone } from "@/components/home/CVDropzone"
 import { JobTextarea } from "@/components/home/JobTextarea"
 import { InfoCard } from "@/components/home/InfoCard"
 import { HowItWorks } from "@/components/home/HowItWorks"
-import { ResultView } from "@/components/result/ResultView"
 import { AnalysisProgress } from "@/components/result/AnalysisProgress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { analyze } from "@/lib/api"
-import type { AnalysisResponse } from "@/types/api"
 
 export function HomePage() {
   const [cvFile, setCvFile] = useState<File | null>(null)
   const [jobText, setJobText] = useState("")
   const [baslik, setBaslik] = useState("")
-  const [result, setResult] = useState<AnalysisResponse | null>(null)
-  const resultRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (result && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
-    }
-  }, [result])
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -36,8 +29,10 @@ export function HomePage() {
       return analyze(cvFile, jobText, baslik)
     },
     onSuccess: (data) => {
-      setResult(data)
+      queryClient.setQueryData(["history", data.id], data)
+      queryClient.invalidateQueries({ queryKey: ["history"] })
       toast.success("Analiz tamamlandı")
+      navigate(`/history/${data.id}`)
     },
     onError: (err: Error) => {
       toast.error(err.message || "Bir hata oluştu")
@@ -81,25 +76,16 @@ export function HomePage() {
 
         {/* Sağ: Info + How */}
         <div className="space-y-4">
-          {!result && !mutation.isPending && (
+          {mutation.isPending ? (
+            <AnalysisProgress />
+          ) : (
             <>
               <InfoCard />
               <HowItWorks />
             </>
           )}
-          {mutation.isPending && <AnalysisProgress />}
         </div>
       </div>
-
-      {/* Sonuç */}
-      {result && (
-        <div ref={resultRef} className="mt-12 scroll-mt-24">
-          <h2 className="mb-6 text-2xl font-semibold tracking-tight">
-            Analiz sonucu
-          </h2>
-          <ResultView result={result} />
-        </div>
-      )}
     </div>
   )
 }

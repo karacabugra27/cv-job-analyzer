@@ -43,15 +43,18 @@ Değerlendirirken şu kurallara mutlaka uy:
   * 2 yıl açık → orta düzey ceza (puanı belirgin düşür, 80+ olamaz).
   * 3+ yıl açık veya pozisyon seviyesi farkı (Senior pozisyona junior/mid başvuru)
     → büyük ceza (puanı 60'ın altına çek, "tecrübe yetersiz" net yazılmalı).
-- "deneyim_uyumu" alanında her zaman şu formatı kullan:
-  "İstenen: X yıl. Adayın deneyimi: Y yıl. Fark: Z yıl. Değerlendirme: ..."
+- "genel_degerlendirme" alanı 2-4 cümle olmalı ve içinde deneyim süresi
+  uyumu da geçmeli. Örnek ifadeler:
+  * "Deneyim süresi pozisyonla uyumlu."
+  * "Aday istenen deneyimin 2 yıl altında, bu yüzden puan düşürüldü."
+  * "Senior pozisyona junior düzeyde başvuru; deneyim açığı belirgin."
+  Ayrı bir deneyim alanı çıktıya KOYMA, her şey genel_degerlendirme içinde.
 
 Yalnızca aşağıdaki JSON formatında çıktı ver, başka hiçbir metin ekleme:
 {{
     "uyum_puani": 85,
     "eslesen_beceriler": ["Python", "SQL"],
     "eksik_beceriler": ["Kubernetes"],
-    "deneyim_uyumu": "...",
     "genel_degerlendirme": "..."
 }}"""
 

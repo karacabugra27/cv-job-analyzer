@@ -3,9 +3,9 @@ import { Card } from "@/components/ui/card"
 
 const points = [
   "Veriye dayalı uyum skoru",
-  "Tam karşılanan gereksinimler",
+  "Karşılanan gereksinimler",
   "Eksik kalan kritik noktalar",
-  "Adım adım gelişim planı",
+  "CV iyileştirme önerileri",
 ]
 
 export function InfoCard() {
@@ -15,12 +15,13 @@ export function InfoCard() {
         <Sparkles className="h-5 w-5" />
       </div>
       <h3 className="mb-2 text-base font-semibold">
-        Analiziniz burada belirecek
+        Analizinizde neler olacak?
       </h3>
       <p className="mb-4 text-sm text-muted-foreground">
-        CV'nizi yükleyin ve iş tanımını yapıştırın. Kariyer koçunuz size 0–100
-        arası bir uyum skoru, güçlü yönleriniz, eksiklikleriniz ve somut
-        gelişim önerileri sunacak.
+        CV'nizi yükleyin ve iş tanımını yapıştırın. Analiz tamamlandığında
+        0–100 arası uyum skorunuz, güçlü ve eksik yönleriniz ile CV'nizi
+        bu pozisyona göre güçlendirme önerileri sonuç sayfasında karşınızda
+        olacak.
       </p>
       <ul className="space-y-2">
         {points.map((p) => (
