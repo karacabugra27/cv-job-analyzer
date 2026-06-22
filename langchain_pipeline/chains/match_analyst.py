@@ -24,11 +24,15 @@ CV Analizi (JSON):
 - Deneyim uyumu
 - Genel uyum puanı (0-100). 70 ve üstü güçlü uyum sayılır.
 
+Değerlendirirken şunlara dikkat et:
+- Teknik becerileri eşleştirirken alakalı becerileri eksiklik olarak gösterme. Örneğin PostgreSQL varsa MySQL eksiklik olarak belirtilmemeli.
+- Beklenen deneyim süresiyle adayın deneyimi arasındaki fark 1-2 yıl eksiklik olmasın. Ama Senior gibi yüksek deneyim bekleyen pozisyonlara deneyimi düşük kişilerin tamamen uyumsuz olması lazım.
+
 Yalnızca aşağıdaki JSON formatında çıktı ver, başka hiçbir metin ekleme:
 {{
     "uyum_puani": 85,
-    "eslesen_beceriler": ["Python", "SQL"],
-    "eksik_beceriler": ["Kubernetes"],
+    "eslesen_beceriler": ["Python", "SQL", "..."],
+    "eksik_beceriler": ["Kubernetes", "..."],
     "deneyim_uyumu": "...",
     "genel_degerlendirme": "..."
 }}"""
@@ -40,6 +44,6 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.1)
 
 match_chain = prompt | llm | JsonOutputParser()
