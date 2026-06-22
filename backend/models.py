@@ -6,6 +6,7 @@ class MatchAnalysis(BaseModel):
     uyum_puani: int = Field(..., ge=0, le=100)
     eslesen_beceriler: list[str] = []
     eksik_beceriler: list[str] = []
+    deneyim_uyumu: str = ""
     genel_degerlendirme: str = ""
 
 

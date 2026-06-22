@@ -2,6 +2,7 @@ export interface MatchAnalysis {
   uyum_puani: number
   eslesen_beceriler: string[]
   eksik_beceriler: string[]
+  deneyim_uyumu: string
   genel_degerlendirme: string
 }
 

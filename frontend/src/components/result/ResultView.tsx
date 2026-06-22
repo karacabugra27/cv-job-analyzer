@@ -27,6 +27,14 @@ export function ResultView({ result }: Props) {
             </p>
           </div>
         </div>
+        {match.deneyim_uyumu && (
+          <div className="mt-6 border-t pt-4">
+            <h3 className="mb-2 text-sm font-semibold">Tecrübe Uyumu</h3>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {match.deneyim_uyumu}
+            </p>
+          </div>
+        )}
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
