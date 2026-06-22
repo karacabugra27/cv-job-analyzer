@@ -1,7 +1,7 @@
 import type { AnalysisResponse, HistoryList } from "@/types/api"
 import { supabase } from "@/lib/supabase"
 
-const BASE = "/api"
+const BASE = (import.meta.env.VITE_API_BASE_URL ?? "") + "/api"
 
 async function authHeaders(): Promise<HeadersInit> {
   const { data } = await supabase.auth.getSession()
@@ -57,4 +57,15 @@ export async function deleteHistory(id: string): Promise<void> {
     headers: await authHeaders(),
   })
   if (!res.ok) throw new Error("Silinemedi")
+}
+
+export async function deleteAccount(): Promise<void> {
+  const res = await fetch(`${BASE}/me`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.detail || "Hesap silinemedi")
+  }
 }

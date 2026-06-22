@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import { Mail, ShieldCheck, Trash2, User as UserIcon } from "lucide-react"
 
 import { supabase } from "@/lib/supabase"
+import { deleteAccount } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -66,18 +67,7 @@ export function ProfilePage() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.auth.getSession()
-      if (error || !data.session) throw new Error("Oturum bulunamadı")
-      const res = await fetch("/api/me", {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${data.session.access_token}` },
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.detail || "Hesap silinemedi")
-      }
-    },
+    mutationFn: deleteAccount,
     onSuccess: async () => {
       toast.success("Hesabın silindi")
       await signOut()
