@@ -17,7 +17,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.execute("ALTER TABLE public.alembic_version ENABLE ROW LEVEL SECURITY;")
+    op.execute(
+        "REVOKE ALL ON public.alembic_version FROM anon, authenticated;"
+    )
 
     op.execute("ALTER TABLE public.analyses ENABLE ROW LEVEL SECURITY;")
 
@@ -58,4 +60,6 @@ def downgrade() -> None:
     op.execute("DROP POLICY IF EXISTS analyses_insert_own ON public.analyses;")
     op.execute("DROP POLICY IF EXISTS analyses_select_own ON public.analyses;")
     op.execute("ALTER TABLE public.analyses DISABLE ROW LEVEL SECURITY;")
-    op.execute("ALTER TABLE public.alembic_version DISABLE ROW LEVEL SECURITY;")
+    op.execute(
+        "GRANT SELECT, INSERT, UPDATE, DELETE ON public.alembic_version TO anon, authenticated;"
+    )

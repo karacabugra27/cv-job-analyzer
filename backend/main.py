@@ -44,6 +44,11 @@ app.add_middleware(
 )
 
 
+@app.get("/healthz")
+async def healthz() -> dict:
+    return {"status": "ok"}
+
+
 def _to_response(row: Analysis) -> AnalysisResponse:
     return AnalysisResponse(
         id=str(row.id),
