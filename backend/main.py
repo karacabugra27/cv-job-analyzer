@@ -13,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from pipeline import run_pipeline
 from backend.auth import CurrentUser, get_current_user
 from backend.cache import (
     analysis_cache_key,
@@ -125,6 +124,8 @@ async def analyze(
             tmp.write(contents)
             tmp_path = tmp.name
         try:
+            from pipeline import run_pipeline
+
             result = run_pipeline(tmp_path, job_text)
         finally:
             os.unlink(tmp_path)
