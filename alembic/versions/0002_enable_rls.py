@@ -18,7 +18,14 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.execute(
-        "REVOKE ALL ON public.alembic_version FROM anon, authenticated;"
+        """
+        DO $$
+        BEGIN
+            REVOKE ALL ON public.alembic_version FROM anon, authenticated;
+        EXCEPTION WHEN OTHERS THEN
+            RAISE NOTICE 'skip REVOKE on alembic_version: %', SQLERRM;
+        END $$;
+        """
     )
 
     op.execute("ALTER TABLE public.analyses ENABLE ROW LEVEL SECURITY;")
