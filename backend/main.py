@@ -13,6 +13,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from monitoring.sentry import setup_sentry
+
+setup_sentry()
+
 from backend.auth import CurrentUser, get_current_user
 from backend.cache import (
     analysis_cache_key,
@@ -20,8 +24,14 @@ from backend.cache import (
     set_cached_analysis,
 )
 from backend.db import get_session
-from backend.models import AnalysisResponse, HistoryItem, HistoryList
-from backend.models_db import Analysis
+from backend.models import (
+    AnalysisResponse,
+    FeedbackCreate,
+    FeedbackResponse,
+    HistoryItem,
+    HistoryList,
+)
+from backend.models_db import Analysis, Feedback
 from backend.rate_limit import enforce_rate_limit
 from backend.redis_client import get_redis
 
@@ -191,3 +201,23 @@ async def delete_history(
     await session.execute(delete(Analysis).where(Analysis.id == record_id))
     await session.commit()
     return {"deleted": str(record_id)}
+
+
+@app.post("/api/feedback", response_model=FeedbackResponse, status_code=201)
+async def create_feedback(
+    payload: FeedbackCreate,
+    user: CurrentUser = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    row = Feedback(
+        id=uuid.uuid4(),
+        user_id=user.id,
+        email=user.email,
+        category=payload.category,
+        message=payload.message.strip(),
+        page_url=payload.page_url,
+    )
+    session.add(row)
+    await session.commit()
+    await session.refresh(row)
+    return FeedbackResponse(id=str(row.id), created_at=row.created_at.isoformat())

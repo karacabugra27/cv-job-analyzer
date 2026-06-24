@@ -59,6 +59,27 @@ export async function deleteHistory(id: string): Promise<void> {
   if (!res.ok) throw new Error("Silinemedi")
 }
 
+export type FeedbackCategory = "bug" | "idea" | "other"
+
+export async function sendFeedback(input: {
+  category: FeedbackCategory
+  message: string
+  page_url?: string
+}): Promise<void> {
+  const res = await fetch(`${BASE}/feedback`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders()),
+    },
+    body: JSON.stringify(input),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.detail || "Geri bildirim gönderilemedi")
+  }
+}
+
 export async function deleteAccount(): Promise<void> {
   const res = await fetch(`${BASE}/me`, {
     method: "DELETE",

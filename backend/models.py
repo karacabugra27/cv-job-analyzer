@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
 
@@ -26,3 +26,17 @@ class HistoryItem(BaseModel):
 
 class HistoryList(BaseModel):
     items: list[HistoryItem]
+
+
+FeedbackCategory = Literal["bug", "idea", "other"]
+
+
+class FeedbackCreate(BaseModel):
+    category: FeedbackCategory
+    message: str = Field(..., min_length=3, max_length=4000)
+    page_url: Optional[str] = Field(default=None, max_length=2048)
+
+
+class FeedbackResponse(BaseModel):
+    id: str
+    created_at: str

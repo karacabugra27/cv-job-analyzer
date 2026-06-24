@@ -11,6 +11,7 @@ import { LoginPage } from "@/pages/LoginPage"
 import { ProfilePage } from "@/pages/ProfilePage"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import { ScrollToTop } from "@/components/ScrollToTop"
+import { FeedbackButton } from "@/components/FeedbackButton"
 import { AuthProvider } from "@/lib/auth"
 import { useThemeStore, applyThemeClass } from "@/store/theme"
 
@@ -75,6 +76,7 @@ function App() {
               </Routes>
             </main>
             <Footer />
+            <FeedbackButton />
           </div>
           <Toaster position="top-right" richColors theme={theme} />
         </AuthProvider>
