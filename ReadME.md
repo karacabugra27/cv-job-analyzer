@@ -181,6 +181,10 @@ Her CV içeriği MD5 ile namespace'lenir, böylece farklı kullanıcıların CV 
 - **LangSmith** — Tüm LLM çağrıları, prompt'lar, token sayıları ve latency otomatik kaydedilir. <https://smith.langchain.com> → `cv-job-analyzer` projesi → **Traces** sekmesi.
 - **Sentry** — Backend (FastAPI integration) ve frontend (React + BrowserTracing) production hatalarını DSN'le yakalar. Lokal dev'de DSN boş bırakılırsa devre dışı kalır.
 
+## Veri kullanımı
+
+Hobi/portföy projesidir. Yüklediğin CV PDF'i sunucuda dosya olarak saklanmaz; analiz için OpenAI, Pinecone ve LangSmith gibi 3. parti AI servislerine gönderilir. Yalnızca analiz sonucu (uyum puanı, beceri listeleri, gelişim metni) kendi hesabına bağlı olarak veritabanında tutulur ve "Geçmiş" sekmesinden istediğin zaman silebilirsin.
+
 ## Geri bildirim
 
 Uygulamada sağ alttaki **Geri bildirim** butonundan hata raporu veya öneri gönderilebilir. Mesajlar `feedback` tablosuna düşer; oturum açmış kullanıcının `user_id`'si de yazılır.

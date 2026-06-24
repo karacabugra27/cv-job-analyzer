@@ -48,6 +48,9 @@ export function HomePage() {
       <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
         {/* Sol: Form */}
         <div className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Veriler analiz için 3. parti AI servislerine gönderilir.
+          </p>
           <CVDropzone file={cvFile} onChange={setCvFile} />
           <JobTextarea value={jobText} onChange={setJobText} />
           <Input
